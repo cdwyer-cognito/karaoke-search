@@ -1,10 +1,13 @@
 import gulp from 'gulp';
 import {loadXML} from './tasks/loadXML';
 import {countRecords, findbyArtist, findbyTitle, find, artistStartsWith, titleStartsWith} from './tasks/queryDatabaseExamples';
+import {addRequest, getRequests, requestCompleted} from './tasks/requests';
+import {clearRequestsCollection} from './tasks/clearRequestsCollection';
 
 
 gulp.task('test', function(){
 	console.log("Hello World");
+	console.log( new Date() );
 });
 
 gulp.task("loadXML", async function(){
@@ -16,21 +19,93 @@ gulp.task("countRecords", async function(){
 });
 
 gulp.task("findbyArtist", async function(){
-	await findbyArtist("Abba");
+	console.log( await findbyArtist("metallica") );
 });
 
 gulp.task("findbyTitle", async function(){
-	await findbyTitle("africa");
+	console.log( await findbyTitle("metallica") );
 });
 
 gulp.task("find", async function(){
-	await find("summer");
+	console.log( await find("summer") );
 });
 
 gulp.task("artistStartsWith", async function(){
-	await artistStartsWith("a");
+	console.log( await artistStartsWith("a") );
 });
 
 gulp.task("titleStartsWith", async function(){
-	await titleStartsWith("i");
+	console.log( await titleStartsWith("i") );
+});
+
+gulp.task("clearRequestsCollection", async function(){
+	await clearRequestsCollection();
+});
+
+gulp.task("addRequest", async function(){
+	let search = await findbyArtist("metallica");
+	console.log(search);
+	
+	let chosenRequest = search.pop();
+
+	console.log("Requesting form search results:");
+	console.log(chosenRequest);
+	
+	console.log(await addRequest ({
+		Singer: "Mark C",
+		DiscRef: chosenRequest.DiscRef,
+		Artist: chosenRequest.Artist,
+		Title: chosenRequest.Title,
+		Filepath: chosenRequest.Filepath,
+	}) );
+});
+
+gulp.task("getRequests", async function() {
+	let pending = [];
+	let completed = [];
+	
+	for ( let request of await getRequests() ) {
+		if ( request.State ) {
+			completed.push(request);
+		} else {
+			pending.push(request);
+		}
+	}
+
+	console.log("Pending Requests: ================================");
+	console.log(pending);
+	console.log("Comnpleted Requests: =============================");
+	console.log(completed);
+
+});
+
+gulp.task("requestCompleted", async function(){
+	let pending = [];
+	let completed = [];
+	
+	for ( let request of await getRequests() ) {
+		if ( request.State ) {
+			completed.push(request);
+		} else {
+			pending.push(request);
+		}
+	}
+
+	await requestCompleted(pending[0]);
+
+	pending = [];
+	completed = [];
+	
+	for ( let request of await getRequests() ) {
+		if ( request.State ) {
+			completed.push(request);
+		} else {
+			pending.push(request);
+		}
+	}
+
+	console.log("Pending Requests: ================================");
+	console.log(pending);
+	console.log("Comnpleted Requests: =============================");
+	console.log(completed);
 });

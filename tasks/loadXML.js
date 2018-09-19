@@ -49,19 +49,21 @@ export async function loadXML(filepath){
 					songDiscRef =  songArtistTag.substring(0, songArtistTag.indexOf(" ") ).trim();
 				} else {
 					extractArtist = true;
+					songArtist = "";
 				}
 
 				if ( song.Tags.Title ) {
 					songTitle = song.Tags.Title.trim();	
 				} else {
 					extractTitle = true;
+					songTitle = "";
 				}
 			} 
 
 			// No tag available attempt to get information from filename.
 			if ( extractArtist || extractTitle ){
 				songFilepath = song.FilePath.split("\\").pop();
-				const filenameArray = songFilepath.split(" ");
+				const filenameArray = songFilepath.split(" - ");
 				
 				if ( extractArtist ) {
 					if ( filenameArray[1] === "-" ) {
@@ -75,7 +77,7 @@ export async function loadXML(filepath){
 				if ( extractTitle ) {
 					let lastElement = filenameArray.pop();
 					let ext = lastElement.split(".").pop();
-					extractTitle = lastElement.replace("." + ext, "");
+					songTitle = lastElement.replace("." + ext, "");
 				}
 			}
 
