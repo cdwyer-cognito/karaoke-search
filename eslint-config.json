@@ -1,0 +1,17 @@
+{
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 5
+  },
+  "env": {
+    "browser": true
+  },
+  "rules": {
+  },
+  "globals" : {
+    "namespace" : true,
+    "include" : true,
+    "cog" : true,
+    "module" : true
+  }
+}
