@@ -19,11 +19,11 @@ gulp.task("countRecords", async function(){
 });
 
 gulp.task("findbyArtist", async function(){
-	console.log( await findbyArtist("metallica") );
+	console.log( await findbyArtist("r.e.m") );
 });
 
 gulp.task("findbyTitle", async function(){
-	console.log( await findbyTitle("metallica") );
+	console.log( await findbyTitle("Numb") );
 });
 
 gulp.task("find", async function(){
@@ -35,7 +35,7 @@ gulp.task("artistStartsWith", async function(){
 });
 
 gulp.task("titleStartsWith", async function(){
-	console.log( await titleStartsWith("i") );
+	console.log( await titleStartsWith("Z") );
 });
 
 gulp.task("clearRequestsCollection", async function(){

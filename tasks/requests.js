@@ -115,7 +115,5 @@ export async function requestCompleted(jsonObj){
         }
       
         client.close();
-      }();
-
-
+    }();
 }

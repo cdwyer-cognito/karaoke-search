@@ -17,6 +17,7 @@ export async function loadXML(filepath){
 	let karaokeCounter = 0;
 	let songCounter = 0;
 	let songsArray = [];
+	let addRecord;
 
 
 	const MongoClient = mongodb.MongoClient;
@@ -34,13 +35,13 @@ export async function loadXML(filepath){
 	console.log("Extracting data from Object");
 
 	for (let song of jsonObj["VirtualDJ_Database"]["Song"]) {
-		songCounter++;
-
+		
 		if (song.Flag === "96" ) {
 			karaokeCounter ++;
 			extractArtist = false;
 			extractTitle = false;
 			songFilepath = song.FilePath;
+			addRecord = true;
 			
 			if ( song.Tags ) {
 				if ( song.Tags.Author ) {
@@ -62,48 +63,50 @@ export async function loadXML(filepath){
 
 			// No tag available attempt to get information from filename.
 			if ( extractArtist || extractTitle ){
-				songFilepath = song.FilePath.split("\\").pop();
-				const filenameArray = songFilepath.split(" - ");
-				
-				if ( extractArtist ) {
-					if ( filenameArray[1] === "-" ) {
-						songArtist = filenameArray[2];	
-					} else {
+				try {
+					songFilepath = song.FilePath.split("\\").pop();
+					const filenameArray = songFilepath.split(" - ");
+					if ( extractArtist ) {
 						songArtist = filenameArray[1];
+						songDiscRef = filenameArray[0];
 					}
-					songDiscRef = filenameArray[0];
-				}
 
-				if ( extractTitle ) {
-					let lastElement = filenameArray.pop();
-					let ext = lastElement.split(".").pop();
-					songTitle = lastElement.replace("." + ext, "");
+					if ( extractTitle ) {
+						let ext = filenameArray[2].split(".").pop();
+						songTitle = filenameArray[2].replace("." + ext, "");
+					}
+				} catch (err) {
+					addRecord = false;
+					console.log("Error calculating song data from filename " + songFilepath);
+					console.log(err.stack);
 				}
 			}
 
-
-			songLength = "";
-			if ( song.Infos ) {
-				if ( song.Infos.SongLength ) {
-					songLength = song.Infos.SongLength;
+			if ( addRecord ) {
+				songCounter++;
+				songLength = "";
+				if ( song.Infos ) {
+					if ( song.Infos.SongLength ) {
+						songLength = song.Infos.SongLength;
+					} 
 				} 
-			} 
-			
-			songKey = "";
-			if ( song.Scan ) {
-				if ( song.Scan.Key ) {
-					songKey = song.Scan.Key;
+				
+				songKey = "";
+				if ( song.Scan ) {
+					if ( song.Scan.Key ) {
+						songKey = song.Scan.Key;
+					}
 				}
-			}
 
-			songsArray.push({
-				Filepath: songFilepath,
-				DiscRef: songDiscRef,
-				Title: songTitle,
-				Artist: songArtist,
-				Key: songKey,
-				Length: songLength
-			})
+				songsArray.push({
+					Filepath: songFilepath,
+					DiscRef: songDiscRef,
+					Title: songTitle,
+					Artist: songArtist,
+					Key: songKey,
+					Length: songLength
+				})
+			}
 		}
 	} 
 
